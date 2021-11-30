@@ -5,3 +5,5 @@ plugins:
 title: Host Sauce, static sauce
 description: the thing goes skrrrrrr
 
+
+theme: jekyll-theme-slate
