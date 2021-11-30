@@ -25,9 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Deploy Ghost Theme
-        uses: TryGhost/action-deploy-theme@v1.4.1
 
 
       # Runs a set of commands using the runners shell
