@@ -1,1 +1,2 @@
-theme: jekyll-theme-cayman
+- name: Deploy Ghost Theme
+  uses: TryGhost/action-deploy-theme@v1.4.1
