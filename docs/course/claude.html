@@ -1,1 +1,913 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ thống AI Agent với Claude — Bản đồ tri thức</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js"></script>
+<style>
+  :root{
+    --paper:#F7F2E9;
+    --paper-2:#FBF7EF;
+    --ink:#231F1A;
+    --ink-soft:#544D43;
+    --rust:#D4521E;
+    --rust-deep:#A8390F;
+    --teal:#2C6E63;
+    --teal-soft:#3F8B7E;
+    --gold:#C99211;
+    --line:#E2D7C4;
+    --shadow:rgba(40,30,15,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Be Vietnam Pro',sans-serif;
+    line-height:1.65;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(212,82,30,.05), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(44,110,99,.05), transparent 42%);
+  }
+  /* grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit}
 
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(247,242,233,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1180px;margin:0 auto;padding:.7rem 1.5rem;
+    display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap;
+  }
+  .brand{font-family:'Fraunces',serif;font-weight:800;font-size:1.05rem;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--rust);box-shadow:0 0 0 3px rgba(212,82,30,.18)}
+  .nav-links{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto}
+  .nav-links a{
+    font-size:.74rem;font-weight:500;text-decoration:none;color:var(--ink-soft);
+    padding:.28rem .55rem;border-radius:6px;transition:.2s;white-space:nowrap;
+  }
+  .nav-links a:hover{background:var(--rust);color:#fff}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 1.5rem}
+  section{padding:4.2rem 0;border-bottom:1px solid var(--line)}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--rust);margin-bottom:.8rem;
+    display:flex;align-items:center;gap:.6rem;
+  }
+  .eyebrow::before{content:"";width:28px;height:2px;background:var(--rust)}
+  h2{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(1.7rem,3.6vw,2.7rem);line-height:1.08;letter-spacing:-.025em;margin-bottom:.9rem}
+  h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.22rem;letter-spacing:-.01em;margin-bottom:.5rem}
+  .lead{font-size:1.02rem;color:var(--ink-soft);max-width:62ch;margin-bottom:2rem}
+  p+p{margin-top:.7rem}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:5.5rem 0 4.5rem;position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+  }
+  .hero-tag{
+    font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.25em;
+    text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:1.4rem;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:800;
+    font-size:clamp(2.4rem,6.5vw,5rem);line-height:.98;letter-spacing:-.035em;margin-bottom:1.3rem;
+  }
+  .hero h1 em{font-style:italic;color:var(--rust)}
+  .hero .sub{font-size:1.15rem;color:var(--ink-soft);max-width:60ch;margin-bottom:2rem}
+  .hero .quote{
+    font-family:'Fraunces',serif;font-style:italic;font-size:1.3rem;color:var(--ink);
+    border-left:3px solid var(--rust);padding-left:1.1rem;max-width:54ch;
+  }
+  .hero-meta{display:flex;gap:2.4rem;flex-wrap:wrap;margin-top:2.6rem}
+  .hero-meta div{font-size:.8rem;color:var(--ink-soft)}
+  .hero-meta b{display:block;font-family:'Fraunces',serif;font-size:1.9rem;color:var(--ink);font-weight:800;line-height:1}
+
+  /* ---------- FORMULA ---------- */
+  .formula{
+    display:flex;align-items:center;justify-content:center;gap:.6rem;flex-wrap:wrap;
+    margin:1.5rem 0;padding:1.8rem 1.2rem;background:var(--ink);border-radius:16px;color:var(--paper);
+  }
+  .formula .chip{
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+    padding:.55rem .85rem;border-radius:10px;font-weight:600;font-size:.92rem;text-align:center;
+  }
+  .formula .op{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--rust);font-weight:800}
+  .formula .eq{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--gold);font-weight:800}
+  .formula .result{background:var(--rust);border-color:var(--rust);color:#fff}
+
+  /* ---------- CARDS / GRID ---------- */
+  .grid{display:grid;gap:1.1rem}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:880px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}.nav-links{display:none}}
+
+  .card{
+    background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:1.3rem;
+    transition:transform .25s, box-shadow .25s;position:relative;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px var(--shadow)}
+  .card .num{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;color:var(--rust);letter-spacing:.1em}
+  .card h3{font-size:1.05rem;margin:.35rem 0 .45rem}
+  .card p{font-size:.88rem;color:var(--ink-soft)}
+  .card .file{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--teal);background:rgba(44,110,99,.08);padding:.12rem .4rem;border-radius:5px;display:inline-block;margin-top:.5rem}
+
+  /* level cards with stripe */
+  .level{border-left:4px solid var(--line)}
+  .level.l1{border-left-color:#C9B896}
+  .level.l2{border-left-color:var(--gold)}
+  .level.l3{border-left-color:var(--teal)}
+  .level.l4{border-left-color:var(--rust)}
+  .kpi{font-size:.78rem;font-weight:600;color:var(--ink);background:rgba(212,82,30,.07);border:1px dashed var(--rust);border-radius:8px;padding:.45rem .6rem;margin-top:.7rem}
+  .pain{font-size:.82rem;color:var(--rust-deep);margin-top:.5rem;font-style:italic}
+
+  /* ---------- MERMAID BOX ---------- */
+  .diagram{
+    background:var(--paper-2);border:1px solid var(--line);border-radius:16px;
+    padding:1.6rem;margin:1.4rem 0;overflow-x:auto;box-shadow:0 10px 26px -20px var(--shadow);
+  }
+  .diagram .cap{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .diagram .cap::before{content:"◆";color:var(--rust)}
+  .mermaid{display:flex;justify-content:center}
+
+  /* ---------- KEYWORD CLOUD ---------- */
+  .keys{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+  .key{
+    font-size:.82rem;font-weight:500;padding:.4rem .8rem;border-radius:30px;
+    border:1px solid var(--line);background:var(--paper-2);transition:.2s;cursor:default;
+  }
+  .key:hover{border-color:var(--rust);color:var(--rust)}
+  .key.hot{background:var(--rust);color:#fff;border-color:var(--rust);font-weight:600}
+  .key.cool{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:600}
+
+  .keyblock{margin-bottom:1.6rem}
+  .keyblock h4{font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:.2rem}
+
+  /* ---------- TABLE ---------- */
+  .tablewrap{overflow-x:auto;border-radius:14px;border:1px solid var(--line);margin-top:1rem}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--paper-2);min-width:640px}
+  th,td{text-align:left;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--ink);color:var(--paper);font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td b{color:var(--rust-deep)}
+  .quick{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--teal)}
+
+  /* ---------- CALLOUT ---------- */
+  .callout{
+    background:linear-gradient(135deg,rgba(212,82,30,.07),rgba(201,146,17,.05));
+    border:1px solid rgba(212,82,30,.22);border-radius:14px;padding:1.4rem 1.5rem;margin-top:1.6rem;
+  }
+  .callout .lbl{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);font-weight:600;margin-bottom:.4rem}
+  .callout p{font-family:'Fraunces',serif;font-size:1.12rem;font-style:italic;color:var(--ink)}
+
+  /* mistakes */
+  .mistake{display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px dashed var(--line)}
+  .mistake:last-child{border-bottom:none}
+  .mistake .x{flex:none;width:26px;height:26px;border-radius:50%;background:var(--rust);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+  .mistake .fix{flex:none;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+  .mistake b{font-size:.9rem}
+  .mistake span{font-size:.85rem;color:var(--ink-soft)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  footer{padding:3rem 0 4rem;text-align:center}
+  footer p{font-size:.82rem;color:var(--ink-soft);max-width:56ch;margin:0 auto .5rem}
+  footer .big{font-family:'Fraunces',serif;font-style:italic;font-size:1.4rem;color:var(--ink);margin-bottom:1rem}
+
+  .pill-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+  .pill{font-size:.72rem;font-family:'JetBrains Mono',monospace;border:1px solid var(--line);padding:.2rem .5rem;border-radius:6px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span> AI Agent · Claude</div>
+    <div class="nav-links">
+      <a href="#mindmap">Mindmap</a>
+      <a href="#keywords">Từ khoá</a>
+      <a href="#mindset">Mindset</a>
+      <a href="#surfaces">5 Bề mặt</a>
+      <a href="#arch">Kiến trúc</a>
+      <a href="#assets">6 Tài sản</a>
+      <a href="#prompt">Prompt 6 lớp</a>
+      <a href="#trees">Cây quyết định</a>
+      <a href="#auto">Tự động hoá</a>
+      <a href="#dept">Phòng ban</a>
+      <a href="#roadmap">30 ngày</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-tag">CES Global AI · Bản đồ tri thức · 14 phần chưng cất</div>
+    <h1>Từ công cụ AI<br>đến <em>đồng nghiệp AI</em><br>thực thụ</h1>
+    <p class="sub">Toàn bộ cẩm nang xây dựng hệ thống AI Agent với Claude cho doanh nghiệp Việt Nam — cô đọng thành mindmap, từ khoá, cây quyết định và sơ đồ luồng.</p>
+    <blockquote class="quote">"AI không thay bạn làm việc. AI khuếch đại người biết giao việc."</blockquote>
+    <div class="hero-meta">
+      <div><b>4</b> cấp độ trưởng thành</div>
+      <div><b>5</b> lớp năng lực</div>
+      <div><b>7</b> tầng kiến trúc</div>
+      <div><b>6</b> tài sản tri thức</div>
+      <div><b>30+</b> use case 8 phòng ban</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MINDMAP ============ -->
+<section id="mindmap">
+  <div class="wrap reveal">
+    <div class="eyebrow">Bản đồ tổng thể</div>
+    <h2>Mindmap toàn cuốn sách</h2>
+    <p class="lead">Một cái nhìn duy nhất cho toàn bộ hệ thống: từ tư duy nền, công cụ, kiến trúc đến thực thi và lộ trình.</p>
+    <div class="diagram">
+      <div class="cap">Mindmap · 14 phần</div>
+      <pre class="mermaid">
+mindmap
+  root(("Hệ thống AI Agent<br/>với Claude"))
+    ("I-II · NỀN TẢNG")
+      ("Mindset")
+        Ngừng coi Claude là chatbot
+        Đồng nghiệp số có ngữ cảnh
+        4 cấp trưởng thành
+      ("Toolset · 5 bề mặt")
+        Chat - nghĩ cùng AI
+        Cowork - làm cùng AI
+        Code - xây cùng AI
+        Project
+        Skills
+    ("III · FRAMEWORK")
+      ("5 lớp năng lực")
+        Prompt
+        Project
+        Skills
+        Connectors MCP
+        Cowork Workflow
+      ("7 tầng kiến trúc")
+        CLAUDE.md
+        Prompt tốt
+        Project Files
+        Skills
+        Tools Connectors
+        Sub-agents Cowork
+        Hooks Workflow
+    ("IV-VII · TÀI SẢN")
+      ("6 tài sản tri thức")
+        ABOUT-ME
+        VOICE-PROFILE
+        ANTI-AI-STYLE
+        TEMPLATES
+        GLOBAL-INSTRUCTIONS
+        CLAUDE OUTPUTS
+      ("CLAUDE.md")
+        Bộ não thứ hai
+        6 phần chuẩn
+      ("Project")
+        Bộ nhớ làm việc
+        3 lớp
+      ("Skills")
+        Đóng gói thành code
+        6 thành phần
+    ("VIII-XI · THỰC THI")
+      ("Connectors MCP Plugins")
+        Connector dùng sẵn
+        MCP tự mở rộng
+        Plugin use case trọn gói
+      ("Sub-agents Hooks")
+        4 vai trò tác nhân
+        4 loại hook
+      ("Prompt 6 lớp")
+        Goal Context Data
+        Output Constraints Validation
+      ("Best practices Memory")
+        7 thói quen
+        3 lớp memory
+    ("XII-XIV · NHÂN RỘNG")
+      ("8 phòng ban")
+        Marketing Sales
+        Ops HR Finance
+        Legal IT CS R&D
+      ("Tự động hoá")
+        Trigger Source
+        Process Deliver
+      ("Lộ trình 30 ngày")
+        T1 Chuẩn hoá
+        T2 Project Skills
+        T3 Kết nối
+        T4 Tự động hoá
+      </pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KEYWORDS / ESSAY ============ -->
+<section id="keywords">
+  <div class="wrap reveal">
+    <div class="eyebrow">Tóm tắt academic · từ khoá</div>
+    <h2>Luận điểm cốt lõi rút thành từ khoá</h2>
+    <p class="lead">Toàn bộ tinh thần cuốn sách rút gọn thành các cụm khái niệm. Cụm <span class="key hot" style="padding:.1rem .5rem">cam</span> = đòn bẩy giá trị cao nhất, cụm <span class="key cool" style="padding:.1rem .5rem">xanh</span> = nguyên tắc kỷ luật bắt buộc.</p>
+
+    <div class="keyblock">
+      <h4>Luận đề trung tâm</h4>
+      <div class="keys">
+        <span class="key hot">Lớp vận hành tri thức</span>
+        <span class="key">đồng nghiệp số ≠ chatbot</span>
+        <span class="key">tri thức được đóng gói &amp; tái sử dụng</span>
+        <span class="key cool">cấu trúc &gt; model (80/20)</span>
+        <span class="key">ROI thật, đo lường được</span>
+        <span class="key">tổ chức giỏi &gt; cá nhân giỏi</span>
+      </div>
+    </div>
+
+    <div class="keyblock">
+      <h4>Cơ chế &amp; thành phần</h4>
+      <div class="keys">
+        <span class="key">prompt → project → skills → connectors → cowork</span>
+        <span class="key hot">CLAUDE.md = bộ não thứ hai</span>
+        <span class="key">skill = code (version · review · share · scale)</span>
+        <span class="key">MCP = USB-C của AI</span>
+        <span class="key">connector dùng sẵn</span>
+        <span class="key">sub-agent phân vai</span>
+        <span class="key">hook = trigger tự động</span>
+      </div>
+    </div>
+
+    <div class="keyblock">
+      <h4>Nguyên tắc kỷ luật vận hành</h4>
+      <div class="keys">
+        <span class="key cool">mô tả kết quả, không mô tả thao tác</span>
+        <span class="key cool">đọc trước, ghi sau</span>
+        <span class="key cool">1 connector = 1 use case có ROI</span>
+        <span class="key cool">làm thủ công ổn rồi mới tự động hoá</span>
+        <span class="key cool">ít mà chất &gt; nhiều mà loãng</span>
+        <span class="key cool">không nhảy cóc cấp độ</span>
+        <span class="key cool">human-in-the-loop cho tác vụ rủi ro</span>
+      </div>
+    </div>
+
+    <div class="keyblock">
+      <h4>Vòng lặp tự cải thiện</h4>
+      <div class="keys">
+        <span class="key">giao việc → phản biện → tinh chỉnh</span>
+        <span class="key">few-shot: ví dụ tốt + ví dụ xấu</span>
+        <span class="key">lưu output gold-standard</span>
+        <span class="key">rà soát hàng tháng</span>
+        <span class="key hot">đo: thời gian · chất lượng · tái sử dụng · ROI 3x</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="lbl">Tinh thần của tinh thần</div>
+      <p>Câu hỏi không phải "Claude làm được gì?" mà là "Đội của bạn đang lặp lại điều gì mỗi tuần mà chưa đóng gói thành tài sản?" — Trả lời 10 câu như vậy, bạn có roadmap 6 tháng.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MINDSET / 4 LEVELS ============ -->
+<section id="mindset">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần I · Mindset</div>
+    <h2>Bốn cấp độ trưởng thành</h2>
+    <p class="lead">~90% doanh nghiệp Việt đang ở Cấp 1. Lên cấp tuần tự theo pain point thật — đừng nhảy cóc từ Cấp 1 lên Cấp 4 trong một quý.</p>
+
+    <div class="grid g4">
+      <div class="card level l1">
+        <div class="num">CẤP 1</div>
+        <h3>Hỏi đáp</h3>
+        <p>Hỏi từng câu rời rạc, mỗi người một prompt riêng. Không chuẩn, không template, không tài sản chia sẻ.</p>
+        <div class="pain">Pain: kết quả không đồng đều, người chính nghỉ là mất hết.</div>
+        <div class="kpi">KPI: % nhân viên dùng Claude ≥ 2 lần/tuần</div>
+      </div>
+      <div class="card level l2">
+        <div class="num">CẤP 2</div>
+        <h3>Cộng tác</h3>
+        <p>Có prompt mẫu, project, tài liệu nền. Mỗi phòng có "champion" tự xây template.</p>
+        <div class="pain">Pain: tri thức rải rác trong chat cá nhân, champion nghỉ là mất.</div>
+        <div class="kpi">KPI: &gt;60% tác vụ lặp có template chuẩn</div>
+      </div>
+      <div class="card level l3">
+        <div class="num">CẤP 3</div>
+        <h3>Chuẩn hoá</h3>
+        <p>Quy trình đóng gói thành Skills. Đầu ra đồng đều, nhiều người dùng chung một bộ tài sản.</p>
+        <div class="pain">Pain: AI chưa chạm dữ liệu thật — vẫn copy-paste thủ công.</div>
+        <div class="kpi">KPI: thời gian/tác vụ giảm 40–60%</div>
+      </div>
+      <div class="card level l4">
+        <div class="num">CẤP 4</div>
+        <h3>Vận hành</h3>
+        <p>Cowork, workflow tự động, connector nội bộ, log &amp; đo ROI. AI là một lớp vận hành thật.</p>
+        <div class="pain">Pain: governance — ai duyệt skill, ai chịu trách nhiệm khi automation lỗi.</div>
+        <div class="kpi">KPI: can thiệp thủ công &lt;20%</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2.4rem">Bốn cặp chuyển dịch tư duy</h3>
+    <div class="grid g2" style="margin-top:.8rem">
+      <div class="card"><p><b>① Câu hỏi rời rạc</b> → mục tiêu có ngữ cảnh đầy đủ</p></div>
+      <div class="card"><p><b>② Làm xong là quên</b> → vòng lặp giao việc–phản biện–tinh chỉnh (+30–50% chất lượng)</p></div>
+      <div class="card"><p><b>③ Chỉ viết/brainstorm</b> → dùng project, skill, workflow để tái sử dụng</p></div>
+      <div class="card"><p><b>④ Claude là công cụ</b> → Claude là cộng sự số: "đây là mục tiêu &amp; chuẩn, hãy đề xuất cách tốt nhất"</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 SURFACES ============ -->
+<section id="surfaces">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần II · Toolset</div>
+    <h2>Năm bề mặt sản phẩm &amp; ba câu thần chú</h2>
+    <p class="lead">Hiểu đúng từng bề mặt để chọn đúng công cụ cho đúng việc. Chọn sai bề mặt → chịu hậu quả nhiều tháng.</p>
+
+    <div class="grid g3">
+      <div class="card"><div class="num">BỀ MẶT 01</div><h3>Claude Chat</h3><p>Hỏi đáp, viết, tóm tắt, phân tích nhanh. Việc một lần, không cần ngữ cảnh dài hạn.</p><span class="file">= Nghĩ cùng AI</span></div>
+      <div class="card"><div class="num">BỀ MẶT 02</div><h3>Claude Code</h3><p>Tác nhân lập trình trong terminal: đọc file, refactor, test. Cũng chạy được data analysis, xử lý hàng trăm PDF.</p><span class="file">= Xây dựng cùng AI</span></div>
+      <div class="card"><div class="num">BỀ MẶT 03</div><h3>Claude Project</h3><p>Không gian có ngữ cảnh, tài liệu, bộ nhớ riêng. Một Project = một workstream.</p><span class="file">Bước nhảy đầu tiên</span></div>
+      <div class="card"><div class="num">BỀ MẶT 04</div><h3>Claude Skills</h3><p>Đóng gói quy trình để Claude tự kích hoạt đúng lúc. Chuẩn hoá cách làm.</p><span class="file">Khác biệt vài người ↔ cả tổ chức</span></div>
+      <div class="card"><div class="num">BỀ MẶT 05</div><h3>Claude Cowork</h3><p>Điều phối nhiều tác vụ, người &amp; AI. Mở app, sửa file, chạy theo lịch.</p><span class="file">= Làm việc cùng AI</span></div>
+      <div class="card" style="background:var(--ink);color:var(--paper);border-color:var(--ink)">
+        <div class="num" style="color:var(--gold)">QUY TẮC</div>
+        <h3 style="color:var(--paper)">Thứ tự triển khai</h3>
+        <p style="color:rgba(255,255,255,.78)">Tháng 1: Chat + Project · Tháng 2: + Skills · Tháng 3–4: + Connectors &amp; Cowork. Đừng triển khai cả năm cùng lúc.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="arch">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần III · Framework</div>
+    <h2>Năm lớp năng lực &amp; bảy tầng kiến trúc</h2>
+    <p class="lead">Phần khung sườn nhất. Mọi sai lầm triển khai đều bắt nguồn từ việc nhầm lẫn các tầng.</p>
+
+    <div class="diagram">
+      <div class="cap">5 lớp năng lực · khi nào dùng lớp nào</div>
+      <pre class="mermaid">
+flowchart LR
+  P["1 · PROMPT<br/>Viết nhanh 1 yêu cầu"] --> PR["2 · PROJECT<br/>Một mảng việc lặp lại"]
+  PR --> SK["3 · SKILLS<br/>Chuẩn hoá tri thức nhóm"]
+  SK --> CN["4 · CONNECTORS / MCP<br/>Lấy dữ liệu thật"]
+  CN --> CW["5 · COWORK / WORKFLOW<br/>Quy trình tự động"]
+  classDef a fill:#FBF7EF,stroke:#D4521E,stroke-width:2px,color:#231F1A;
+  classDef b fill:#231F1A,stroke:#231F1A,color:#F7F2E9;
+  class P,PR,SK,CN a;
+  class CW b;
+      </pre>
+    </div>
+
+    <div class="diagram">
+      <div class="cap">7 tầng kiến trúc · từ ngữ cảnh nền đến tự động hoá</div>
+      <pre class="mermaid">
+flowchart TD
+  T1["TẦNG 1 · CLAUDE.md — ngữ cảnh nền luôn hiện diện (đầu tư rẻ nhất)"]
+  T2["TẦNG 2 · Prompt tốt — lệnh giao việc 6 lớp"]
+  T3["TẦNG 3 · Project / Files — bộ nhớ workstream"]
+  T4["TẦNG 4 · Skills — quy trình tự kích hoạt"]
+  T5["TẦNG 5 · Tools / Connectors / MCP — chạm dữ liệu thật"]
+  T6["TẦNG 6 · Sub-agents / Cowork — phân vai, song song"]
+  T7["TẦNG 7 · Hooks / Workflow — trigger, QA, bàn giao"]
+  T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7
+  T7 -.->|"Hệ điều hành vận hành"| T1
+  classDef base fill:#FBF7EF,stroke:#C99211,stroke-width:1.5px,color:#231F1A;
+  classDef mid fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  classDef top fill:#231F1A,stroke:#D4521E,stroke-width:2px,color:#F7F2E9;
+  class T1,T2 base;
+  class T3,T4,T5 mid;
+  class T6,T7 top;
+      </pre>
+    </div>
+
+    <div class="formula">
+      <span class="chip">CLAUDE.md</span><span class="op">+</span>
+      <span class="chip">Skills</span><span class="op">+</span>
+      <span class="chip">MCP</span><span class="op">+</span>
+      <span class="chip">Tác tử phụ</span><span class="op">+</span>
+      <span class="chip">Workflow</span><span class="eq">=</span>
+      <span class="chip result">Hệ thống AI làm việc thật</span>
+    </div>
+
+    <h3 style="margin-top:2rem">Ba sai lầm kiến trúc &amp; cách đúng</h3>
+    <div class="card" style="margin-top:.8rem">
+      <div class="mistake"><div class="x">✕</div><div><b>Nhồi mọi thứ vào prompt khổng lồ 3.000 từ</b><br><span>→ Quá tải ngữ cảnh, đầu ra rời rạc.</span></div></div>
+      <div class="mistake"><div class="fix">✓</div><div><span>Tách CLAUDE.md (ngữ cảnh) + Project (dữ liệu) + Skill (quy trình) + prompt 200 từ.</span></div></div>
+      <div class="mistake"><div class="x">✕</div><div><b>Mua 10 connector trước khi có use case</b><br><span>→ 3 tháng sau không cái nào được dùng.</span></div></div>
+      <div class="mistake"><div class="fix">✓</div><div><span>Mỗi connector gắn 1 use case có ROI rõ trước khi cài.</span></div></div>
+      <div class="mistake"><div class="x">✕</div><div><b>Automate khi quy trình thủ công còn chưa rõ</b><br><span>→ Báo cáo tự động sai 30%.</span></div></div>
+      <div class="mistake"><div class="fix">✓</div><div><span>Làm thủ công 4 lần → viết SOP → thành skill → dùng 4 tuần → mới automate.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ASSETS ============ -->
+<section id="assets">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần IV–VII · Tài sản tri thức</div>
+    <h2>Sáu tài sản để làm chủ Claude</h2>
+    <p class="lead">Tất cả là file markdown đơn giản — không cần công cụ đắt tiền, chỉ cần kỷ luật viết &amp; cập nhật. Bắt đầu từ 3 cái tô đậm.</p>
+
+    <div class="grid g3">
+      <div class="card" style="border-top:3px solid var(--rust)"><div class="num">01 · ƯU TIÊN</div><h3>ABOUT-ME</h3><p>Danh tính công việc: vai trò, ngành, ngôn ngữ, mục tiêu, cách ra quyết định.</p><span class="file">&lt;500 từ</span></div>
+      <div class="card" style="border-top:3px solid var(--rust)"><div class="num">02 · ƯU TIÊN</div><h3>VOICE-PROFILE</h3><p>ADN phong cách viết: giọng văn, từ vựng, cấu trúc, mức trang trọng, ranh giới.</p><span class="file">6 thành phần</span></div>
+      <div class="card"><div class="num">03</div><h3>ANTI-AI-STYLE</h3><p>Tấm khiên chống sáo rỗng: "không chỉ A mà còn B", "hãy cùng đi sâu", emoji thừa…</p><span class="file">Tạo cá tính</span></div>
+      <div class="card"><div class="num">04</div><h3>TEMPLATES/</h3><p>Kho mẫu đầu ra: email, báo cáo, proposal, biên bản. Kèm cả "phản ví dụ".</p><span class="file">few-shot</span></div>
+      <div class="card" style="border-top:3px solid var(--rust)"><div class="num">05 · ƯU TIÊN</div><h3>GLOBAL-INSTRUCTIONS</h3><p>Luật chơi xuyên suốt: ưu tiên · chuẩn đầu ra · cách phản hồi · điều cấm.</p><span class="file">kết tinh bài học</span></div>
+      <div class="card"><div class="num">06</div><h3>CLAUDE OUTPUTS/</h3><p>Thư viện gold-standard: đầu ra đã ship + metadata. Giảm 50% thời gian iterate.</p><span class="file">chất lượng thật</span></div>
+    </div>
+
+    <div class="diagram">
+      <div class="cap">Vòng tròn vận hành tự cải thiện</div>
+      <pre class="mermaid">
+flowchart LR
+  A["Con người<br/>đặt mục tiêu + bối cảnh"] --> B["Tài sản tri thức<br/>danh tính · phong cách · quy tắc · mẫu"]
+  B --> C["Claude<br/>hiểu · suy luận · tạo"]
+  C --> D["Đầu ra<br/>đạt chuẩn, đúng ý"]
+  D --> E["Lưu lại<br/>mở rộng tài sản"]
+  E --> A
+  classDef n fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  classDef hot fill:#D4521E,stroke:#D4521E,color:#fff;
+  class A,B,C,E n;
+  class D hot;
+      </pre>
+    </div>
+
+    <h3 style="margin-top:1.5rem">CLAUDE.md — 6 phần chuẩn của "bộ não thứ hai"</h3>
+    <div class="grid g3" style="margin-top:.8rem">
+      <div class="card"><p><b>1. Định nghĩa vai trò</b> — Claude là ai, cấp độ, phạm vi.</p></div>
+      <div class="card"><p><b>2. Mô hình tư duy</b> — nghĩ thế nào, nguyên tắc ưu tiên.</p></div>
+      <div class="card"><p><b>3. Nguyên tắc làm việc</b> — tinh thần mặc định mọi tác vụ.</p></div>
+      <div class="card"><p><b>4. Điều cấm</b> — ranh giới (≥5 điều cấm rõ ràng).</p></div>
+      <div class="card"><p><b>5. Định dạng đầu ra</b> — checklist, bảng, độ dài.</p></div>
+      <div class="card"><p><b>6. Tham chiếu tài sản</b> — link tới các file khác.</p></div>
+    </div>
+    <p style="margin-top:1rem;font-size:.88rem;color:var(--ink-soft)"><b>3 bài học:</b> ① không viết trừu tượng ("hãy chuyên nghiệp" vô nghĩa) · ② không bỏ phần điều cấm · ③ không sao chép CLAUDE.md công ty khác. Giữ &lt;2.000 từ, rà soát hàng tháng.</p>
+  </div>
+</section>
+
+<!-- ============ SKILLS detail ============ -->
+<section id="skills">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần VII · Skills</div>
+    <h2>Skill = đóng gói cách làm thành code</h2>
+    <p class="lead">Một công ty có 10 Company Skills tốt hơn một công ty có 100 Individual Skills. Giá trị lớn nhất nằm ở Company Skills.</p>
+
+    <div class="diagram">
+      <div class="cap">6 thành phần bắt buộc của một skill tốt</div>
+      <pre class="mermaid">
+flowchart LR
+  TR["TRIGGER<br/>khi nào kích hoạt"] --> CX["CONTEXT<br/>tài liệu/dữ liệu cần"]
+  CX --> RU["RULES<br/>chuẩn đầu ra, tone"]
+  RU --> ST["STEPS<br/>các bước có kiểm tra"]
+  ST --> OU["OUTPUT<br/>định dạng cụ thể"]
+  OU --> EX["EXAMPLES<br/>mẫu tốt + mẫu xấu"]
+  EX -.->|"+ Giới hạn &amp; ngoại lệ"| TR
+  classDef s fill:#FBF7EF,stroke:#C99211,stroke-width:1.5px,color:#231F1A;
+  class TR,CX,RU,ST,OU,EX s;
+      </pre>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><div class="num">LOẠI 1</div><h3>Built-in</h3><p>Anthropic ship sẵn: Excel, Word, PPT, PDF, data analysis. Dùng ngay.</p></div>
+      <div class="card" style="border-top:3px solid var(--rust)"><div class="num">LOẠI 2 · GIÁ TRỊ NHẤT</div><h3>Company Skills</h3><p>Brand voice, quy trình thẩm định, SOP onboarding — tri thức đặc thù không AI nào biết.</p></div>
+      <div class="card"><div class="num">LOẠI 3</div><h3>Individual</h3><p>Skill cá nhân: note-taking, code-review style, research method.</p></div>
+    </div>
+    <p style="margin-top:1rem;font-size:.88rem;color:var(--ink-soft)"><b>Công thức:</b> Skill = Trigger + Context + Rules + Steps + Output + Examples. Tạo nhanh bằng <span class="quick">skill-creator</span>: Mô tả → Generate → Test &amp; refine (3–5 vòng) → Share. <b>4 use case nên xây sớm:</b> báo cáo định kỳ · soạn proposal · tóm tắt họp · phân tích phản hồi khách hàng.</p>
+  </div>
+</section>
+
+<!-- ============ CONNECTORS / MCP / PLUGIN ============ -->
+<section id="connectors">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần VIII–IX · Thực thi</div>
+    <h2>Connector · MCP · Plugin &amp; đội tác nhân</h2>
+    <p class="lead">Ba câu thần chú: <b>Connector = dùng sẵn · MCP = tự mở rộng · Plugin = use case trọn gói.</b></p>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Khái niệm</th><th>Là gì</th><th>Ai dùng</th><th>Phù hợp khi</th></tr></thead>
+        <tbody>
+          <tr><td><b>Connector</b></td><td>Tích hợp 1-click với 1 tool (50+ có sẵn: Slack, Gmail, Drive, CRM…)</td><td>Người dùng cuối, ít kỹ thuật</td><td class="quick">Muốn bắt đầu nhanh · 0–3 tháng</td></tr>
+          <tr><td><b>MCP server</b></td><td>Protocol mở để build kết nối mới — "USB-C của AI"</td><td>Developer / đội kỹ thuật</td><td class="quick">Cần hệ thống nội bộ, kiểm soát sâu · 3–12 tháng</td></tr>
+          <tr><td><b>Plugin</b></td><td>Gói sub-agent đầy đủ: skill + connector + quy trình</td><td>Admin / phòng ban</td><td class="quick">Triển khai use case hoàn chỉnh theo phòng ban</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="diagram">
+      <div class="cap">4 vai trò tác nhân xử lý 80% quy trình doanh nghiệp</div>
+      <pre class="mermaid">
+flowchart LR
+  U["User<br/>mục tiêu"] --> O{{"Orchestrator<br/>điều phối"}}
+  O --> R["Research Agent<br/>thu thập, tổng hợp nguồn"]
+  O --> A["Analyst Agent<br/>phân tích, rút kết luận"]
+  R --> A
+  A --> E["Execution Agent<br/>soạn đầu ra cuối"]
+  E --> V["Reviewer Agent<br/>kiểm tra, phản biện"]
+  V --> O
+  O --> D["Bàn giao"]
+  classDef n fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  classDef o fill:#231F1A,stroke:#D4521E,stroke-width:2px,color:#F7F2E9;
+  classDef d fill:#D4521E,stroke:#D4521E,color:#fff;
+  class R,A,E,V,U n;
+  class O o;
+  class D d;
+      </pre>
+    </div>
+
+    <h3>4 loại hook tự động hoá</h3>
+    <div class="grid g4" style="margin-top:.8rem">
+      <div class="card"><h3>PRE-TOOL</h3><p>Kiểm tra điều kiện trước khi chạy (dữ liệu đủ chưa?).</p></div>
+      <div class="card"><h3>POST-TOOL</h3><p>Chuẩn hoá, QA, gửi kết quả sau khi chạy.</p></div>
+      <div class="card"><h3>ON-EDIT</h3><p>Kích hoạt khi file/dữ liệu thay đổi.</p></div>
+      <div class="card"><h3>ON-NOTIFICATION</h3><p>Phản hồi khi có thông báo/yêu cầu mới.</p></div>
+    </div>
+    <p style="margin-top:1rem;font-size:.88rem;color:var(--ink-soft)"><b>4 nguyên tắc vàng cho hook:</b> trigger rõ · có bước kiểm tra · có log · có cơ chế dừng khẩn cấp. <i>Hook tốt không thay thế tư duy quản trị — nó giải phóng con người khỏi việc thấp giá trị.</i></p>
+  </div>
+</section>
+
+<!-- ============ PROMPT 6 LAYERS ============ -->
+<section id="prompt">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần X · Prompt giao việc</div>
+    <h2>Cấu trúc prompt 6 lớp</h2>
+    <p class="lead">Prompt 200 từ đủ 6 lớp luôn thắng prompt 500 từ rườm rà. Mỗi lớp giải quyết một dạng mơ hồ phổ biến.</p>
+
+    <div class="formula" style="font-size:.85rem">
+      <span class="chip">Goal · Mục tiêu</span><span class="op">+</span>
+      <span class="chip">Context · Bối cảnh</span><span class="op">+</span>
+      <span class="chip">Data · Dữ liệu</span><span class="op">+</span>
+      <span class="chip">Output · Tiêu chuẩn</span><span class="op">+</span>
+      <span class="chip">Constraints · Ràng buộc</span><span class="op">+</span>
+      <span class="chip result">Validation · Kiểm tra</span>
+    </div>
+
+    <div class="grid g3" style="margin-top:1.4rem">
+      <div class="card"><div class="num">LỚP 1 · GOAL</div><p>"Sau khi xong, tôi có sản phẩm gì cụ thể?"</p></div>
+      <div class="card"><div class="num">LỚP 2 · CONTEXT</div><p>"Claude cần biết gì để khỏi đoán?"</p></div>
+      <div class="card"><div class="num">LỚP 3 · DATA</div><p>"Dựa vào dữ liệu/file nào, không bịa?"</p></div>
+      <div class="card"><div class="num">LỚP 4 · OUTPUT</div><p>"Đầu ra trông thế nào, dài bao nhiêu, gồm phần gì?"</p></div>
+      <div class="card"><div class="num">LỚP 5 · CONSTRAINTS</div><p>"Có gì Claude không được làm để tránh rủi ro?"</p></div>
+      <div class="card"><div class="num">LỚP 6 · VALIDATION</div><p>"Làm sao biết đầu ra đạt chuẩn? Checklist nào?"</p></div>
+    </div>
+
+    <h3 style="margin-top:2rem">Ba lỗi prompt 90% người dùng vẫn mắc</h3>
+    <div class="card" style="margin-top:.8rem">
+      <div class="mistake"><div class="x">1</div><div><b>Nói quá chung chung</b> — "viết báo cáo về thị trường" → generic, iterate 3–5 lần. <span>Cách sửa: thêm bối cảnh + dữ liệu + chuẩn + ràng buộc.</span></div></div>
+      <div class="mistake"><div class="x">2</div><div><b>Không chỉ rõ dữ liệu</b> — "phân tích doanh thu Q3" → bịa số. <span>Cách sửa: gắn file, nêu năm, đơn vị, scope.</span></div></div>
+      <div class="mistake"><div class="x">3</div><div><b>Không quy định đầu ra</b> — Claude tự chọn essay 1.500 từ thay vì post 200 từ. <span>Cách sửa: luôn nêu format, độ dài, tiêu chí.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECISION TREES ============ -->
+<section id="trees">
+  <div class="wrap reveal">
+    <div class="eyebrow">Cây quyết định</div>
+    <h2>Chọn đúng — không đoán</h2>
+    <p class="lead">Ba cây quyết định cho ba câu hỏi thường gặp nhất: chọn bề mặt nào, dùng lớp năng lực nào, và khi nào nâng cấp.</p>
+
+    <div class="diagram">
+      <div class="cap">Cây 1 · Chọn bề mặt làm việc</div>
+      <pre class="mermaid">
+flowchart TD
+  Q{"Bạn cần gì?"}
+  Q --> Q1{"Bản nháp văn bản<br/>trong ~15 phút?"}
+  Q1 -->|Có| CHAT["💬 CHAT<br/>nghĩ cùng AI"]
+  Q1 -->|Không| Q2{"Liên quan file / codebase /<br/>dữ liệu lớn trên máy?"}
+  Q2 -->|Có| CODE["⌨️ CODE<br/>xây dựng cùng AI"]
+  Q2 -->|Không| Q3{"Quy trình nhiều bước,<br/>nhiều vai trò, chạy theo lịch?"}
+  Q3 -->|Có| Q4{"Cần phân vai<br/>research/analyst/review?"}
+  Q4 -->|Có| COWA["👥 COWORK<br/>+ sub-agents"]
+  Q4 -->|Không| COWB["👥 COWORK<br/>+ Skill"]
+  Q3 -->|"Chưa, chỉ 1 mảng việc lặp lại"| PROJ["📁 PROJECT<br/>bộ nhớ workstream"]
+  classDef q fill:#231F1A,stroke:#D4521E,color:#F7F2E9;
+  classDef a fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  classDef hot fill:#D4521E,stroke:#D4521E,color:#fff;
+  class Q,Q1,Q2,Q3,Q4 q;
+  class CHAT,CODE,PROJ a;
+  class COWA,COWB hot;
+      </pre>
+    </div>
+
+    <div class="diagram">
+      <div class="cap">Cây 2 · Chọn lớp năng lực để đầu tư</div>
+      <pre class="mermaid">
+flowchart TD
+  S{"Tác vụ này<br/>như thế nào?"}
+  S -->|"Một lần, không lặp lại"| L1["① PROMPT"]
+  S -->|"Lặp lại, 1 người làm"| L2["② PROJECT"]
+  L2 --> C2{"Nhiều người hỏi<br/>cách dùng project của bạn?"}
+  C2 -->|Có| L3["③ SKILLS<br/>chuẩn hoá tri thức nhóm"]
+  C2 -->|Chưa| L2b["Giữ ở PROJECT"]
+  L3 --> C3{"Skill cần dữ liệu live<br/>từ Slack/CRM/DB?"}
+  C3 -->|Có| L4["④ CONNECTORS / MCP"]
+  C3 -->|Không| L3b["Giữ ở SKILLS"]
+  L4 --> C4{"Cần chuỗi việc tự động<br/>theo lịch, nhiều vai trò?"}
+  C4 -->|Có| L5["⑤ COWORK / WORKFLOW"]
+  C4 -->|Chưa| L4b["Giữ ở CONNECTORS"]
+  classDef q fill:#231F1A,stroke:#D4521E,color:#F7F2E9;
+  classDef a fill:#FBF7EF,stroke:#C99211,stroke-width:1.5px,color:#231F1A;
+  classDef hot fill:#D4521E,stroke:#D4521E,color:#fff;
+  class S,C2,C3,C4 q;
+  class L1,L2,L2b,L3b,L4b a;
+  class L3,L4,L5 hot;
+      </pre>
+    </div>
+
+    <div class="diagram">
+      <div class="cap">Cây 3 · Khi nào nâng cấp (dấu hiệu &amp; điều kiện chung)</div>
+      <pre class="mermaid">
+flowchart TD
+  G{"Đã đo được ROI<br/>ở tầng thấp hơn?"}
+  G -->|Không| STOP["⛔ ĐỪNG NÂNG CẤP<br/>đo ROI trước đã"]
+  G -->|Có| WHICH{"Pain point nào?"}
+  WHICH -->|"≥3 người copy-paste<br/>&gt;1h/tuần giữa các tool"| CON["Cần CONNECTORS"]
+  WHICH -->|"≥2 người làm cùng tác vụ,<br/>đầu ra không đồng đều,<br/>đang đào tạo người mới"| SKI["Cần SKILLS"]
+  WHICH -->|"Quy trình ≥3 bước, lặp theo lịch,<br/>nhiều người bàn giao,<br/>đầu ra chuẩn hoá được"| COW["Cần COWORK"]
+  classDef q fill:#231F1A,stroke:#D4521E,color:#F7F2E9;
+  classDef stop fill:#A8390F,stroke:#A8390F,color:#fff;
+  classDef a fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  class G,WHICH q;
+  class STOP stop;
+  class CON,SKI,COW a;
+      </pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AUTOMATION ============ -->
+<section id="auto">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần XIII · Tự động hoá</div>
+    <h2>Công thức Trigger → Source → Process → Deliver</h2>
+    <p class="lead">Bốn lớp đơn giản biến bất kỳ tác vụ lặp lại nào thành workflow tự động. Bài tập: viết 5 tác vụ bạn lặp lại mỗi tuần, mô tả theo 4 lớp này.</p>
+
+    <div class="diagram">
+      <div class="cap">Công thức 4 lớp · ví dụ Daily Briefing 8h sáng</div>
+      <pre class="mermaid">
+flowchart LR
+  TR["⚡ TRIGGER<br/>8h sáng T2–T6<br/><i>(lịch hoặc sự kiện)</i>"] --> SR["🗄️ SOURCE<br/>Slack · Notion<br/>GitHub PR · Email"]
+  SR --> PR["⚙️ PROCESS<br/>lọc noise · gom insight<br/>ưu tiên theo độ khẩn"]
+  PR --> DL["📤 DELIVER<br/>Email + Slack DM<br/>5 mục, đọc 3 phút"]
+  classDef t fill:#D4521E,stroke:#D4521E,color:#fff;
+  classDef s fill:#FBF7EF,stroke:#2C6E63,stroke-width:1.5px,color:#231F1A;
+  class TR t;
+  class SR,PR,DL s;
+      </pre>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><div class="num">USE CASE 1</div><h3>Daily Briefing</h3><p>5 mục: Priority · Decision · Risk · Win · People. Tiết kiệm ~30 phút/người/ngày.</p></div>
+      <div class="card"><div class="num">USE CASE 2</div><h3>Market Sizing</h3><p>1 câu hỏi → 5 file (deck, workbook, citations, sensitivity, summary) trong ~45 phút. TAM/SAM/SOM top-down + bottom-up.</p></div>
+      <div class="card"><div class="num">USE CASE 3</div><h3>Tổng hợp phản hồi KH</h3><p>4 nguồn → top theme + sentiment + hành động ưu tiên (impact + severity). Notion page cập nhật mỗi tuần.</p></div>
+    </div>
+    <div class="callout">
+      <div class="lbl">Hai chỉ báo workflow đáng làm</div>
+      <p>① Giải phóng người khỏi việc thấp giá trị để tập trung vào quyết định. ② Tạo dữ liệu nhất quán mà trước đây thủ công nên không nhất quán — ví dụ tỷ lệ tag đúng trong CRM tăng từ 60% → 95%.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEPARTMENTS ============ -->
+<section id="dept">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần XII · Cẩm nang ngành</div>
+    <h2>Tám phòng ban · điểm khởi đầu &amp; use case</h2>
+    <p class="lead">Đừng triển khai cả 8 cùng lúc. Bắt đầu từ phòng có pain rõ nhất, một use case ROI nhanh, chuẩn hoá, đo thật, rồi nhân rộng.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Phòng ban</th><th>Use case nên bắt đầu</th><th>Khẩu quyết</th></tr></thead>
+        <tbody>
+          <tr><td><b>Marketing</b></td><td>Brand voice skill + lịch social content</td><td class="quick">2 cái đầu giải quyết 60% nhu cầu daily</td></tr>
+          <tr><td><b>Sales</b></td><td>Discovery prep · proposal generator · cold outreach</td><td class="quick">Sales thiếu hệ thống biến tín hiệu → hành động</td></tr>
+          <tr><td><b>Operations</b></td><td>Daily ops briefing · bottleneck finder · SOP generator</td><td class="quick">Giảm tắc nghẽn &gt; cải thiện đột phá</td></tr>
+          <tr><td><b>HR</b></td><td>JD generator + interview kit chuẩn hoá</td><td class="quick">ROI nhanh nhất, rủi ro thấp nhất</td></tr>
+          <tr><td><b>Finance</b></td><td>Monthly close · variance · cash flow forecast</td><td class="quick">Cần giải thích chênh lệch, không chỉ số đúng · con người duyệt cuối</td></tr>
+          <tr><td><b>Legal</b></td><td>Contract review · NDA triage · litigation summary</td><td class="quick">AI giúp đọc nhanh hơn, chuẩn hơn — không thay luật sư</td></tr>
+          <tr><td><b>IT / Eng</b></td><td>Bug triage · code review · doc generation</td><td class="quick">Cần ngữ cảnh rõ, review chuẩn, phản ứng nhanh</td></tr>
+          <tr><td><b>CS</b></td><td>Ticket triage + response draft chuẩn brand (20 tình huống)</td><td class="quick">Giảm 30–40% thời gian xử lý ticket</td></tr>
+          <tr><td><b>R&amp;D / Product</b></td><td>10 phỏng vấn → 5 insight + 3 quyết định + 1 PRD</td><td class="quick">Use case ROI cao nhất cho R&amp;D</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap">
+  <div class="wrap reveal">
+    <div class="eyebrow">Phần XIV · Lộ trình</div>
+    <h2>30 ngày triển khai theo thứ tự</h2>
+    <p class="lead">Khung khả thi cho 80% doanh nghiệp Việt. Bốn tuần, mỗi tuần một mục tiêu — đầu ra rõ, KPI rõ.</p>
+
+    <div class="diagram">
+      <div class="cap">Gantt · 4 tuần triển khai</div>
+      <pre class="mermaid">
+gantt
+  dateFormat YYYY-MM-DD
+  axisFormat Tuần %W
+  section T1 · Chuẩn hoá nền
+  GLOBAL-INSTRUCTIONS + 3 prompt mẫu     :a1, 2026-01-05, 2d
+  ABOUT-ME + VOICE-PROFILE cá nhân       :a2, after a1, 2d
+  CLAUDE.md cho 1-2 project lớn          :a3, after a2, 3d
+  section T2 · Project &amp; Skills
+  Dựng 2 Project + nạp 3-5 file cốt lõi  :b1, 2026-01-12, 3d
+  Skill v1 bằng skill-creator            :b2, after b1, 2d
+  Test 5 tình huống thật                 :b3, after b2, 2d
+  section T3 · Kết nối
+  Chọn + cài connector ưu tiên           :c1, 2026-01-19, 2d
+  Test staging · đọc trước ghi sau       :c2, after c1, 3d
+  Chuyển 1 use case sang connector       :c3, after c2, 2d
+  section T4 · Tự động hoá
+  Tách quy trình thành 3-4 vai trò       :d1, 2026-01-26, 2d
+  Thêm hook trigger + bước QA            :d2, after d1, 2d
+  Test 5 tình huống + ban hành           :d3, after d2, 3d
+      </pre>
+    </div>
+
+    <div class="grid g4">
+      <div class="card level l1"><div class="num">TUẦN 1</div><h3>Chuẩn hoá nền tảng</h3><p>Thống nhất prompt 6 lớp &amp; CLAUDE.md toàn đội.</p><div class="kpi">KPI: 80% đội dùng cùng cấu trúc prompt</div></div>
+      <div class="card level l2"><div class="num">TUẦN 2</div><h3>Project &amp; Skills</h3><p>Đóng gói 1–2 quy trình lặp lại thành Project + Skill v1.</p><div class="kpi">KPI: giảm thời gian xử lý ≥20%</div></div>
+      <div class="card level l3"><div class="num">TUẦN 3</div><h3>Kết nối công cụ</h3><p>1–2 connector gắn use case của tuần 2.</p><div class="kpi">KPI: ≥1 use case có ROI rõ</div></div>
+      <div class="card level l4"><div class="num">TUẦN 4</div><h3>Phối hợp &amp; tự động</h3><p>Workflow nhiều bước có QA &amp; bàn giao.</p><div class="kpi">KPI: giảm phụ thuộc chat thủ công</div></div>
+    </div>
+
+    <h3 style="margin-top:2rem">4 điều kiện thành công · 3 sai lầm chết người</h3>
+    <div class="grid g2" style="margin-top:.8rem">
+      <div class="card" style="border-left:4px solid var(--teal)">
+        <h3 style="color:var(--teal)">✓ Điều kiện thành công</h3>
+        <p>① Có owner duy nhất (≥30% thời gian) · ② Use case thật, không học chay · ③ Có output mẫu để đánh giá · ④ Đo thời gian · chất lượng · ROI.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--rust)">
+        <h3 style="color:var(--rust)">✕ Sai lầm phải tránh</h3>
+        <p>① Mua tool trước khi rõ bài toán · ② Làm xong không lưu tri thức &amp; output tốt · ③ Không lập KPI bắt buộc.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="lbl">Sau ngày 30 → 60 → 90</div>
+      <p>30: có nền (chuẩn prompt, project, 2 skill, 1 connector, 1 workflow). 60: mở rộng phòng ban thứ hai + 3–5 skill + viết business case. 90: chuẩn hoá governance + đào tạo "lớp thứ hai" (50% đội ngũ). Khi đó bạn không chỉ có vài người giỏi AI — bạn có một tổ chức biết khai thác AI.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap reveal">
+    <p class="big">"Đội của bạn đang lặp lại điều gì mỗi tuần<br>mà chưa đóng gói thành tài sản?"</p>
+    <p>Bản đồ tri thức chưng cất từ cẩm nang <i>"Xây dựng hệ thống AI Agent với Claude AI"</i> — CES Global AI 2026, biên soạn bởi Tiep Nguyen.</p>
+    <div class="pill-row" style="justify-content:center;margin-top:1rem">
+      <span class="pill">Mindmap</span><span class="pill">Keywords</span><span class="pill">Decision Trees</span><span class="pill">Mermaid Flows</span><span class="pill">14 phần · 66 trang</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad:true,
+    theme:'base',
+    securityLevel:'loose',
+    fontFamily:'Be Vietnam Pro, sans-serif',
+    themeVariables:{
+      primaryColor:'#FBF7EF',
+      primaryTextColor:'#231F1A',
+      primaryBorderColor:'#D4521E',
+      lineColor:'#A8907A',
+      secondaryColor:'#F0E7D6',
+      tertiaryColor:'#FBF7EF',
+      fontSize:'14px',
+      mainBkg:'#FBF7EF',
+      nodeBorder:'#C99211'
+    },
+    mindmap:{padding:14},
+    flowchart:{curve:'basis',padding:18,nodeSpacing:42,rankSpacing:52},
+    gantt:{barHeight:22,barGap:6,fontSize:12,sectionFontSize:13,gridLineStartPadding:120}
+  });
+
+  // scroll reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
